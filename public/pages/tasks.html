@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+(function(){try{
+var t=localStorage.getItem('theme')||'light';
+document.documentElement.setAttribute('data-theme',t);
+var l=localStorage.getItem('lang')||'ar';
+document.documentElement.setAttribute('dir',l==='ar'?'rtl':'ltr');
+document.documentElement.setAttribute('lang',l);
+var isLogin=window.location.pathname==='/'||window.location.pathname==='/login';
+if(!isLogin&&!localStorage.getItem('token')){document.documentElement.style.display='none';window.location.replace('/');}
+}catch(e){}}());
+</script>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks — Enterprise Task Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="/css/style.css?v=9" rel="stylesheet">
+</head>
+<body>
+    <aside class="sidebar" id="sidebar"><div id="sidebarLogoArea"><div class="logo-icon"><i class="fas fa-tasks"></i></div><h4>Enterprise TMS</h4><small>Task Management System</small></div><nav class="sidebar-nav"><div class="nav-section">Main Menu</div><a href="/dashboard" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a><a href="/tasks" class="nav-link active"><i class="fas fa-tasks"></i> Tasks</a><a href="/technical-issues" class="nav-link"><i class="fas fa-headset"></i> Technical Issues</a><a href="/reports" class="nav-link"><i class="fas fa-chart-bar"></i> Reports</a><a href="/archives" class="nav-link"><i class="fas fa-archive"></i> Task Archives</a>
+<a href="/issues-archives" class="nav-link"><i class="fas fa-box-open"></i> Issue Archives</a><div class="nav-divider"></div><div class="nav-section admin-only">Administration</div><a href="/users" class="nav-link admin-only"><i class="fas fa-users"></i> Users</a><a href="/departments" class="nav-link"><i class="fas fa-building"></i> Departments</a><a href="/roles" class="nav-link admin-only"><i class="fas fa-user-shield"></i> Roles & Permissions</a><a href="/audit-logs" class="nav-link admin-only"><i class="fas fa-history"></i> Audit Logs</a><a href="/settings" class="nav-link admin-only" id="nav-settings"><i class="fas fa-cog"></i> الإعدادات</a>
+            <div class="nav-divider"></div><a href="/notifications" class="nav-link"><i class="fas fa-bell"></i> Notifications</a><a href="/profile" class="nav-link"><i class="fas fa-user-cog"></i> Profile</a></nav><div class="sidebar-footer">&copy; 2026 نظام ادارة الوقت لشركات والمؤسسات. تم تصميم البرنامج بالكامل بواسطة المهندس عبدالمجيد سعيد.</div></aside>
+    <div class="main-wrapper">
+        <header class="main-header"><div class="header-left"><button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button><div class="header-search"><i class="fas fa-search"></i><input type="text" placeholder="Search..." id="globalSearch"></div></div><div class="header-right">
+                <button class="theme-toggle me-2" onclick="Lang.toggleLang()" title="Change Language"><i class="fas fa-language"></i></button><a href="/notifications" class="notification-bell" id="notifBell"><i class="fas fa-bell"></i><span class="badge" id="notifCount" style="display:none">0</span></a><button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button><div class="dropdown"><div class="user-dropdown" data-bs-toggle="dropdown"><div class="user-avatar" id="userAvatar"></div><div class="user-info"><div class="name" id="headerUserName"></div><div class="role" id="headerUserRole"></div></div><i class="fas fa-chevron-down ms-1" style="font-size:10px;color:var(--text-muted)"></i></div><ul class="dropdown-menu dropdown-menu-end"><li><a class="dropdown-item" href="/profile"><i class="fas fa-user-cog me-2"></i>Profile</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item text-danger" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li></ul></div></div></header>
+        <main class="page-content">
+            <div class="page-header">
+                <div><h2>Task Management</h2><nav class="breadcrumb"><a href="/dashboard">Home</a> / <span>Tasks</span></nav></div>
+                <button class="btn btn-primary-custom manager-only" id="createTaskBtn" onclick="Tasks.openCreateModal()"
+                    style="display:none"
+                    title="إنشاء مهمة جديدة">
+                    <i class="fas fa-plus me-2"></i>إنشاء مهمة
+                </button>
+            </div>
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <div class="filter-group"><label>Status</label><select class="form-select" id="filterStatus"><option value="">All</option><option value="new">New</option><option value="in_progress">In Progress</option><option value="completed">Completed</option><option value="suspended">Suspended</option><option value="delayed">Delayed</option></select></div>
+                <div class="filter-group admin-only"><label>Department</label><select class="form-select" id="filterDepartment"><option value="">All</option></select></div>
+                <div class="filter-group"><label>الموظف</label><select class="form-select" id="filterAssignedTo"><option value="">الجميع</option></select></div>
+                <div class="filter-group"><label>From Date</label><input type="date" class="form-control" id="filterDateFrom"></div>
+                <div class="filter-group"><label>To Date</label><input type="date" class="form-control" id="filterDateTo"></div>
+                <div class="filter-group" style="margin-top:auto"><button class="btn btn-primary-custom btn-sm" onclick="Tasks.applyFilters()"><i class="fas fa-filter me-1"></i><span data-i18n="txt_auto_39">تصفية</span></button><button class="btn btn-secondary btn-sm ms-1" onclick="Tasks.resetFilters()"><span data-i18n="txt_auto_40">إعادة ضبط</span></button></div>
+            </div>
+            <div class="data-card">
+                <div class="card-body-custom"><div class="table-responsive">
+                    <table class="table table-custom" id="tasksTable" width="100%">
+
+                        <thead><tr><th>Task #</th><th>Title</th><th>Assigned To</th><th>Status</th><th>Progress</th><th>Start Date</th><th>End Date</th><th>Actions</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div></div>
+            </div>
+        </main>
+        <footer class="main-footer">&copy; 2026 نظام ادارة الوقت لشركات والمؤسسات. تم تصميم البرنامج بالكامل بواسطة المهندس عبدالمجيد سعيد.</footer>
+    </div>
+    <!-- Create/Edit Task Modal -->
+    <div class="modal fade" id="taskModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title" id="taskModalTitle">إنشاء مهمة</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <form id="taskForm"><div class="modal-body">
+            <input type="hidden" id="taskId">
+            <div class="row g-3">
+                <div class="col-md-12"><label class="form-label fw-bold">عنوان المهمة *</label><input type="text" class="form-control" id="taskTitle" required placeholder="أدخل عنوان المهمة"></div>
+                <div class="col-md-12"><label class="form-label fw-bold">الوصف</label><textarea class="form-control" id="taskDescription" rows="3" placeholder="وصف تفصيلي للمهمة (اختياري)"></textarea></div>
+                <div class="col-md-6"><label class="form-label fw-bold">إسناد إلى *</label><select class="form-select" id="taskAssignTo" required><option value="">اختر موظف</option></select></div>
+                <div class="col-md-6"><label class="form-label fw-bold">أيام العمل *</label><select class="form-select" id="taskWorkDays" required><option value="1">يوم واحد</option><option value="2">يومان</option><option value="3">3 أيام</option><option value="4">4 أيام</option><option value="5">5 أيام</option><option value="6">6 أيام</option><option value="7">أسبوع واحد</option><option value="14">أسبوعان</option><option value="21">3 أسابيع</option><option value="30">شهر واحد</option></select></div>
+                <div class="col-md-6 admin-only"><label class="form-label fw-bold">القسم</label><select class="form-select" id="taskDepartment"><option value="">تلقائي (قسمي)</option></select></div>
+                <!-- طريقة إرسال إشعار المهمة -->
+                <div class="col-md-12">
+                    <label class="form-label fw-bold"><i class="fas fa-share-alt me-1 text-primary"></i>طريقة إرسال إشعار المهمة للموظف</label>
+                    <div class="d-flex gap-3 p-3 rounded" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="sendByEmail">
+                            <label class="form-check-label" for="sendByEmail">
+                                <i class="fas fa-envelope text-primary me-1"></i>
+                                <strong>البريد الإلكتروني</strong>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="sendByWhatsapp">
+                            <label class="form-check-label" for="sendByWhatsapp">
+                                <i class="fab fa-whatsapp text-success me-1"></i>
+                                <strong>واتساب</strong>
+                            </label>
+                        </div>
+                        <small class="text-muted align-self-center">(اختياري - يمكن اختيار الاثنين معاً)</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button><button type="submit" class="btn btn-primary-custom"><i class="fas fa-save me-2"></i>حفظ المهمة</button></div>
+        </form>
+    </div></div></div>
+    <div class="loading-overlay" id="loadingOverlay"><div class="loading-spinner"></div></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="/js/api.js"></script><script src="/js/i18n.js"></script>
+    <script src="/js/app.js?v=11"></script>
+    <script src="/js/tasks.js?v=7"></script>
+    <script>
+    // Show create task button only for admin/manager
+    document.addEventListener('DOMContentLoaded', function() {
+        const user = (() => { try { return JSON.parse(localStorage.getItem('user')); } catch { return null; } })();
+        const role = (user?.role?.name || '').toLowerCase();
+        const perms = user?.permissions || [];
+        if (role === 'admin' || role === 'manager' || perms.includes('create_tasks')) {
+            document.getElementById('createTaskBtn').style.display = '';
+        }
+    });
+    </script>
+</body>
+</html>
+

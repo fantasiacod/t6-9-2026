@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script>
+(function(){try{
+var t=localStorage.getItem('theme')||'light';
+document.documentElement.setAttribute('data-theme',t);
+var l=localStorage.getItem('lang')||'ar';
+document.documentElement.setAttribute('dir',l==='ar'?'rtl':'ltr');
+document.documentElement.setAttribute('lang',l);
+var isLogin=window.location.pathname==='/'||window.location.pathname==='/login';
+if(!isLogin&&!localStorage.getItem('token')){document.documentElement.style.display='none';window.location.replace('/');}
+}catch(e){}}());
+</script>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الإعدادات — نظام إدارة المهام</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <link href="/css/style.css?v=9" rel="stylesheet">
+</head>
+<body>
+    <aside class="sidebar" id="sidebar">
+        <div id="sidebarLogoArea"></div>
+        <nav class="sidebar-nav">
+            <div class="nav-section">القائمة الرئيسية</div>
+            <a href="/dashboard" class="nav-link"><i class="fas fa-tachometer-alt"></i> لوحة التحكم</a>
+            <a href="/tasks" class="nav-link"><i class="fas fa-tasks"></i> المهام</a>
+            <a href="/technical-issues" class="nav-link"><i class="fas fa-headset"></i> البلاغات التقنية</a>
+            <a href="/reports" class="nav-link"><i class="fas fa-chart-bar"></i> التقارير</a>
+            <a href="/archives" class="nav-link"><i class="fas fa-archive"></i> أرشيف المهام</a>
+            <a href="/issues-archives" class="nav-link"><i class="fas fa-box-open"></i> أرشيف البلاغات</a>
+            <div class="nav-divider"></div>
+            <div class="nav-section admin-only">الإدارة</div>
+            <a href="/users" class="nav-link admin-only"><i class="fas fa-users"></i> المستخدمون</a>
+            <a href="/departments" class="nav-link"><i class="fas fa-building"></i> الأقسام</a>
+            <a href="/roles" class="nav-link admin-only"><i class="fas fa-user-shield"></i> الأدوار والصلاحيات</a>
+            <a href="/audit-logs" class="nav-link admin-only"><i class="fas fa-history"></i> سجلات المراقبة</a>
+            <a href="/settings" class="nav-link active admin-only"><i class="fas fa-cog"></i> الإعدادات</a>
+            <div class="nav-divider"></div>
+            <a href="/notifications" class="nav-link"><i class="fas fa-bell"></i> الإشعارات</a>
+            <a href="/profile" class="nav-link"><i class="fas fa-user-cog"></i> الملف الشخصي</a>
+        </nav>
+        <div class="sidebar-footer">© 2026 نظام إدارة المهام. تم التصميم بواسطة المهندس عبدالمجيد سعيد.</div>
+    </aside>
+    <div class="main-wrapper">
+        <header class="main-header">
+            <div class="header-left">
+                <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+            </div>
+            <div class="header-right">
+                <button class="theme-toggle me-2" onclick="Lang.toggleLang()" title="تغيير اللغة"><i class="fas fa-language"></i></button>
+                <a href="/notifications" class="notification-bell" id="notifBell"><i class="fas fa-bell"></i><span class="badge" id="notifCount" style="display:none">0</span></a>
+                <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <div class="dropdown">
+                    <div class="user-dropdown" data-bs-toggle="dropdown">
+                        <div class="user-avatar" id="userAvatar"></div>
+                        <div class="user-info"><div class="name" id="headerUserName"></div><div class="role" id="headerUserRole"></div></div>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="/profile"><i class="fas fa-user-cog me-2"></i>الملف الشخصي</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i>تسجيل الخروج</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+        <main class="page-content">
+            <div class="page-header">
+                <div><h2>⚙️ إعدادات النظام</h2><nav class="breadcrumb"><a href="/dashboard">الرئيسية</a> / الإعدادات</nav></div>
+            </div>
+
+            <!-- Logo Settings -->
+            <div class="settings-section">
+                <div class="settings-section-title">
+                    <i class="fas fa-image text-warning"></i> إدارة شعارات النظام
+                </div>
+                <p class="text-muted mb-4">يمكنك رفع شعارين يظهران في شريط القائمة الجانبية مع فاصل بينهما. على سبيل المثال: شعار الشركة وشعار الجهة الحكومية.</p>
+                <div class="row g-4">
+                    <!-- Logo 1 -->
+                    <div class="col-md-5">
+                        <div class="p-4 border rounded-3" style="background:var(--bg-secondary)">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-image me-2 text-success"></i>الشعار الأول</h6>
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="logo-preview-box" id="logo1PreviewBox" onclick="document.getElementById('logo1Input').click()">
+                                    <img id="logo1Preview" src="" alt="" style="display:none">
+                                    <div class="logo-placeholder" id="logo1Placeholder"><i class="fas fa-building"></i></div>
+                                </div>
+                                <div>
+                                    <input type="file" id="logo1Input" accept="image/*" style="display:none" onchange="Settings.previewLogo(1, this)">
+                                    <button type="button" class="btn btn-outline-success btn-sm mb-2 d-block" onclick="document.getElementById('logo1Input').click()">
+                                        <i class="fas fa-upload me-1"></i> رفع الشعار
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="Settings.clearLogo(1)">
+                                        <i class="fas fa-trash me-1"></i> إزالة
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold">اسم الجهة (يظهر أسفل الشعار)</label>
+                                <input type="text" class="form-control form-control-sm" id="logo1Name" placeholder="مثال: وزارة التعليم">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Divider preview -->
+                    <div class="col-md-2 d-flex align-items-center justify-content-center">
+                        <div class="text-center text-muted">
+                            <div style="width:2px;height:80px;background:var(--border-color);margin:0 auto 8px"></div>
+                            <small>فاصل</small>
+                        </div>
+                    </div>
+                    <!-- Logo 2 -->
+                    <div class="col-md-5">
+                        <div class="p-4 border rounded-3" style="background:var(--bg-secondary)">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-image me-2 text-info"></i>الشعار الثاني</h6>
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="logo-preview-box" id="logo2PreviewBox" onclick="document.getElementById('logo2Input').click()">
+                                    <img id="logo2Preview" src="" alt="" style="display:none">
+                                    <div class="logo-placeholder" id="logo2Placeholder"><i class="fas fa-flag"></i></div>
+                                </div>
+                                <div>
+                                    <input type="file" id="logo2Input" accept="image/*" style="display:none" onchange="Settings.previewLogo(2, this)">
+                                    <button type="button" class="btn btn-outline-info btn-sm mb-2 d-block" onclick="document.getElementById('logo2Input').click()">
+                                        <i class="fas fa-upload me-1"></i> رفع الشعار
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="Settings.clearLogo(2)">
+                                        <i class="fas fa-trash me-1"></i> إزالة
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold">اسم الجهة (يظهر أسفل الشعار)</label>
+                                <input type="text" class="form-control form-control-sm" id="logo2Name" placeholder="مثال: هيئة التطوير">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appearance Settings (Login & Color) -->
+            <div class="settings-section">
+                <div class="settings-section-title">
+                    <i class="fas fa-paint-brush text-primary"></i> المظهر والهوية البصرية
+                </div>
+                <p class="text-muted mb-4">تخصيص الشعار الذي يظهر في صفحة تسجيل الدخول، بالإضافة إلى تغيير اللون الأساسي للنظام.</p>
+                <div class="row g-4">
+                    <!-- Login Logo -->
+                    <div class="col-md-6">
+                        <div class="p-4 border rounded-3" style="background:var(--bg-secondary)">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-sign-in-alt me-2 text-primary"></i>شعار صفحة الدخول الكبير</h6>
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="logo-preview-box" id="loginLogoPreviewBox" onclick="document.getElementById('loginLogoInput').click()" style="width:160px; height:80px; border-radius:8px">
+                                    <img id="loginLogoPreview" src="" alt="" style="display:none">
+                                    <div class="logo-placeholder" id="loginLogoPlaceholder"><i class="fas fa-image"></i></div>
+                                </div>
+                                <div>
+                                    <input type="file" id="loginLogoInput" accept="image/*" style="display:none" onchange="Settings.previewLoginLogo(this)">
+                                    <button type="button" class="btn btn-outline-primary btn-sm mb-2 d-block" onclick="document.getElementById('loginLogoInput').click()">
+                                        <i class="fas fa-upload me-1"></i> رفع الشعار
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="Settings.clearLoginLogo()">
+                                        <i class="fas fa-trash me-1"></i> إزالة
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Primary Color -->
+                    <div class="col-md-6">
+                        <div class="p-4 border rounded-3" style="background:var(--bg-secondary)">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-palette me-2 text-primary"></i>اللون الأساسي للنظام</h6>
+                            <div class="d-flex align-items-center gap-3">
+                                <input type="color" id="primaryColorInput" class="form-control form-control-color" value="#16a34a" title="اختر اللون الأساسي">
+                                <div>
+                                    <p class="mb-1 fw-bold">اختر اللون ليعكس هوية مؤسستك</p>
+                                    <small class="text-muted">سيتم تطبيق هذا اللون على الأزرار والقوائم الأساسية.</small>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('primaryColorInput').value='#16a34a'">
+                                    <i class="fas fa-undo me-1"></i>استعادة الافتراضي (أخضر)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-4 mt-1">
+                    <!-- Sidebar Color -->
+                    <div class="col-md-3">
+                        <div class="p-4 border rounded-3 h-100" style="background:var(--bg-secondary)">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-bars me-2 text-primary"></i>لون القائمة الجانبية</h6>
+                            <div class="d-flex align-items-center gap-3">
+                                <input type="color" id="sidebarColorInput" class="form-control form-control-color" value="#1B5E20">
+                                <div>
+                                    <small class="text-muted d-block">خلفية القائمة الجانبية.</small>
+                                    <button type="button" class="btn btn-link btn-sm p-0 mt-1" onclick="document.getElementById('sidebarColorInput').value='#1B5E20'"><i class="fas fa-undo me-1"></i>افتراضي</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Sidebar Text Color -->
+                    <div class="col-md-3">
+                        <div class="p-4 border rounded-3 h-100" style="background:var(--bg-secondary)">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-heading me-2 text-primary"></i>نصوص القائمة الجانبية</h6>
+                            <div class="d-flex align-items-center gap-3">
+                                <input type="color" id="sidebarTextColorInput" class="form-control form-control-color" value="#ffffff">
+                                <div>
+                                    <small class="text-muted d-block">نصوص وأيقونات القائمة.</small>
+                                    <button type="button" class="btn btn-link btn-sm p-0 mt-1" onclick="document.getElementById('sidebarTextColorInput').value='#ffffff'"><i class="fas fa-undo me-1"></i>افتراضي</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Text Color -->
+                    <div class="col-md-3">
+                        <div class="p-4 border rounded-3 h-100" style="background:var(--bg-secondary)">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-font me-2 text-primary"></i>لون النصوص الأساسية</h6>
+                            <div class="d-flex align-items-center gap-3">
+                                <input type="color" id="textColorInput" class="form-control form-control-color" value="#212121">
+                                <div>
+                                    <small class="text-muted d-block">لون الخط الافتراضي للنظام.</small>
+                                    <button type="button" class="btn btn-link btn-sm p-0 mt-1" onclick="document.getElementById('textColorInput').value='#212121'"><i class="fas fa-undo me-1"></i>افتراضي</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Font Family -->
+                    <div class="col-md-3">
+                        <div class="p-4 border rounded-3 h-100" style="background:var(--bg-secondary)">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-text-height me-2 text-primary"></i>نوع الخط (الخطوط العربية)</h6>
+                            <select id="fontFamilyInput" class="form-select">
+                                <option value="Inter">Inter (افتراضي)</option>
+                                <option value="Tajawal" style="font-family: Tajawal">Tajawal (تجوال)</option>
+                                <option value="Cairo" style="font-family: Cairo">Cairo (كايرو)</option>
+                                <option value="Almarai" style="font-family: Almarai">Almarai (المراعي)</option>
+                                <option value="Readex Pro" style="font-family: 'Readex Pro'">Readex Pro (ريدكس برو)</option>
+                                <option value="Changa" style="font-family: Changa">Changa (تشانجا)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 d-flex gap-2">
+                    <button type="button" class="btn btn-primary-custom" onclick="Settings.saveSettings()">
+                        <i class="fas fa-save me-2"></i>حفظ جميع الإعدادات
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="Settings.previewSidebar()">
+                        <i class="fas fa-eye me-2"></i>معاينة القائمة
+                    </button>
+                </div>
+            </div>
+
+            <!-- System Rules Settings -->
+            <div class="settings-section">
+                <div class="settings-section-title">
+                    <i class="fas fa-cogs text-secondary"></i> قواعد وإعدادات النظام
+                </div>
+                <p class="text-muted mb-4">تخصيص قواعد العمل، مثل أيام العطلة الأسبوعية وتأثيرها على حساب التواريخ.</p>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="p-4 border rounded-3 h-100" style="background:var(--bg-secondary)">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-calendar-alt me-2 text-secondary"></i>عطلة نهاية الأسبوع</h6>
+                            <p class="small text-muted mb-3">اختر الأيام التي لا يتم احتسابها ضمن أيام العمل عند تحديد تواريخ انتهاء المهام.</p>
+                            
+                            <div class="d-flex flex-wrap gap-3" id="weekendDaysContainer">
+                                <div class="form-check">
+                                    <input class="form-check-input weekend-check" type="checkbox" value="0" id="wd0">
+                                    <label class="form-check-label" for="wd0">الأحد</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input weekend-check" type="checkbox" value="1" id="wd1">
+                                    <label class="form-check-label" for="wd1">الإثنين</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input weekend-check" type="checkbox" value="2" id="wd2">
+                                    <label class="form-check-label" for="wd2">الثلاثاء</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input weekend-check" type="checkbox" value="3" id="wd3">
+                                    <label class="form-check-label" for="wd3">الأربعاء</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input weekend-check" type="checkbox" value="4" id="wd4">
+                                    <label class="form-check-label" for="wd4">الخميس</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input weekend-check" type="checkbox" value="5" id="wd5">
+                                    <label class="form-check-label" for="wd5">الجمعة</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input weekend-check" type="checkbox" value="6" id="wd6">
+                                    <label class="form-check-label" for="wd6">السبت</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 d-flex gap-2">
+                    <button type="button" class="btn btn-primary-custom" onclick="Settings.saveSettings()">
+                        <i class="fas fa-save me-2"></i>حفظ قواعد النظام
+                    </button>
+                </div>
+            </div>
+
+
+            <!-- n8n Webhook Settings Section -->
+            <div class="settings-section">
+                <div class="settings-section-title">
+                    <i class="fas fa-robot text-success"></i> الربط مع الأتمتة (n8n Webhook)
+                </div>
+                <p class="text-muted mb-4">إرسال تفاصيل المهام الجديدة تلقائياً إلى n8n لتوزيعها عبر واتساب، تليجرام، إيميل، أو تخزينها في Excel.</p>
+                <div class="row g-4">
+                    <div class="col-md-12">
+                        <div class="p-4 border rounded-3" style="background:var(--bg-secondary)">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-link me-2 text-success"></i>إعدادات Webhook</h6>
+                            
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="n8nEnabled">
+                                <label class="form-check-label fw-bold" for="n8nEnabled">تفعيل إرسال المهام إلى n8n</label>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">رابط الخطاف (Webhook URL)</label>
+                                <input type="url" class="form-control" id="n8nWebhookUrl" placeholder="https://your-n8n-instance.com/webhook/12345-abcde">
+                                <small class="text-muted mt-2 d-block">سيرسل النظام طلب <code>POST</code> إلى هذا الرابط يحتوي على كائن JSON بكامل تفاصيل المهمة (العنوان، الموظف، الهاتف، إلخ).</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 d-flex gap-2">
+                    <button type="button" class="btn btn-primary-custom" onclick="Settings.saveN8nSettings()">
+                        <i class="fas fa-save me-2"></i>حفظ إعدادات n8n
+                    </button>
+                    <button type="button" class="btn btn-outline-success" onclick="Settings.testN8n()">
+                        <i class="fas fa-paper-plane me-2"></i>إرسال مهمة تجريبية لـ n8n
+                    </button>
+                </div>
+            </div>
+
+            <!-- SMS Settings Section -->
+            <div class="settings-section">
+                <div class="settings-section-title">
+                    <i class="fas fa-sms text-warning"></i> إعدادات الرسائل النصية (SMS)
+                </div>
+                <p class="text-muted mb-4">إرسال تفاصيل المهام عبر رسائل نصية قصيرة SMS مباشرة للموظفين.</p>
+                <div class="row g-4">
+                    <div class="col-md-12">
+                        <div class="p-4 border rounded-3" style="background:var(--bg-secondary)">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-mobile-alt me-2 text-warning"></i>بيانات ربط الـ SMS</h6>
+                            
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="smsEnabled">
+                                <label class="form-check-label fw-bold" for="smsEnabled">تفعيل إرسال رسائل SMS</label>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">الشركة المشغلة (Provider)</label>
+                                <select class="form-select" id="smsProvider">
+                                    <option value="twilio">Twilio</option>
+                                    <option value="unifonic">Unifonic</option>
+                                    <option value="taqnyat">Taqnyat</option>
+                                    <option value="msegat">Msegat</option>
+                                </select>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label small fw-bold">معرف الحساب (Account SID / App ID)</label>
+                                    <input type="text" class="form-control" id="twilioSid" placeholder="معرف الحساب لدى المزود">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label small fw-bold">رمز المصادقة (Auth Token / App Secret)</label>
+                                    <input type="password" class="form-control" id="twilioToken" placeholder="اتركه فارغاً للحفاظ على الرمز الحالي">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">رقم/اسم المرسل (Sender ID / From)</label>
+                                <input type="text" class="form-control" id="twilioFrom" placeholder="الرقم أو اسم المرسل المعتمد">
+                                <small class="text-muted mt-2 d-block">الرقم أو اسم المرسل (Sender ID) الذي تم اعتماده من المزود.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 d-flex gap-2">
+                    <button type="button" class="btn btn-primary-custom" onclick="Settings.saveSmsSettings()">
+                        <i class="fas fa-save me-2"></i>حفظ إعدادات SMS
+                    </button>
+                    <button type="button" class="btn btn-outline-warning" onclick="Settings.testSms()">
+                        <i class="fas fa-paper-plane me-2"></i>إرسال رسالة تجريبية
+                    </button>
+                </div>
+            </div>
+        </main>
+        <footer class="main-footer">© 2026 نظام إدارة المهام. تم التصميم بواسطة المهندس عبدالمجيد سعيد.</footer>
+    </div>
+    <div class="loading-overlay" id="loadingOverlay"><div class="loading-spinner"></div></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/api.js?v=2"></script><script src="/js/i18n.js"></script>
+    <script src="/js/app.js?v=8"></script>
+    <script>
+    const Settings = {
+        settingsData: { logo1_url: '', logo1_name: '', logo2_url: '', logo2_name: '', login_logo_url: '', primary_color: '#16a34a' },
+        async init() {
+            try {
+                const r = await API.get('/settings');
+                this.settingsData = r.data || {};
+                
+                // Populate Logo 1
+                if (this.settingsData.logo1_url) {
+                    document.getElementById('logo1Preview').src = this.settingsData.logo1_url;
+                    document.getElementById('logo1Preview').style.display = 'block';
+                    document.getElementById('logo1Placeholder').style.display = 'none';
+                }
+                document.getElementById('logo1Name').value = this.settingsData.logo1_name || '';
+
+                // Populate Logo 2
+                if (this.settingsData.logo2_url) {
+                    document.getElementById('logo2Preview').src = this.settingsData.logo2_url;
+                    document.getElementById('logo2Preview').style.display = 'block';
+                    document.getElementById('logo2Placeholder').style.display = 'none';
+                }
+                document.getElementById('logo2Name').value = this.settingsData.logo2_name || '';
+
+                // Populate Login Logo
+                if (this.settingsData.login_logo_url) {
+                    document.getElementById('loginLogoPreview').src = this.settingsData.login_logo_url;
+                    document.getElementById('loginLogoPreview').style.display = 'block';
+                    document.getElementById('loginLogoPlaceholder').style.display = 'none';
+                }
+
+                // Populate Colors & Font
+                if (this.settingsData.primary_color) {
+                    document.getElementById('primaryColorInput').value = this.settingsData.primary_color;
+                }
+                if (this.settingsData.sidebar_color) {
+                    document.getElementById('sidebarColorInput').value = this.settingsData.sidebar_color;
+                }
+                if (this.settingsData.sidebar_text_color) {
+                    document.getElementById('sidebarTextColorInput').value = this.settingsData.sidebar_text_color;
+                }
+                if (this.settingsData.text_color) {
+                    document.getElementById('textColorInput').value = this.settingsData.text_color;
+                }
+                if (this.settingsData.font_family) {
+                    document.getElementById('fontFamilyInput').value = this.settingsData.font_family;
+                }
+                if (this.settingsData.weekend_days !== undefined && this.settingsData.weekend_days !== null) {
+                    const days = this.settingsData.weekend_days.split(',');
+                    document.querySelectorAll('.weekend-check').forEach(c => {
+                        c.checked = days.includes(c.value);
+                    });
+                } else {
+                    document.getElementById('wd5').checked = true;
+                    document.getElementById('wd6').checked = true;
+                }
+
+                // Load email settings
+                try {
+                    const emailRes = await API.get('/settings/email');
+                    if (emailRes.success && emailRes.data) {
+                        const ed = emailRes.data;
+                        if (ed.smtp_host) document.getElementById('smtpHost').value = ed.smtp_host;
+                        if (ed.smtp_port) document.getElementById('smtpPort').value = ed.smtp_port;
+                        if (ed.smtp_user) document.getElementById('smtpUser').value = ed.smtp_user;
+                        if (ed.smtp_from) document.getElementById('smtpFrom').value = ed.smtp_from;
+                        document.getElementById('smtpEnabled').checked = ed.smtp_enabled === 'true';
+                    }
+                } catch(e2) { /* email settings not critical */ }
+
+                // Load n8n settings
+                try {
+                    const n8nRes = await API.get('/settings/n8n');
+                    if (n8nRes.success && n8nRes.data) {
+                        const n8n = n8nRes.data;
+                        if (n8n.n8n_webhook_url) document.getElementById('n8nWebhookUrl').value = n8n.n8n_webhook_url;
+                        document.getElementById('n8nEnabled').checked = n8n.n8n_enabled === 'true';
+                    }
+                } catch(e3) { /* n8n settings not critical */ }
+
+                // Load SMS settings
+                try {
+                    const smsRes = await API.get('/settings/sms');
+                    if (smsRes.success && smsRes.data) {
+                        const sms = smsRes.data;
+                        if (sms.sms_provider) document.getElementById('smsProvider').value = sms.sms_provider;
+                        if (sms.twilio_sid) document.getElementById('twilioSid').value = sms.twilio_sid;
+                        if (sms.twilio_from) document.getElementById('twilioFrom').value = sms.twilio_from;
+                        document.getElementById('smsEnabled').checked = sms.sms_enabled === 'true';
+                    }
+                } catch(e4) { /* sms settings not critical */ }
+
+            } catch (e) { App.showError('فشل تحميل الإعدادات'); }
+        },
+        previewLogo(num, input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const preview = document.getElementById(`logo${num}Preview`);
+                const placeholder = document.getElementById(`logo${num}Placeholder`);
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                placeholder.style.display = 'none';
+                this.settingsData[`logo${num}_url`] = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        },
+        clearLogo(num) {
+            document.getElementById(`logo${num}Preview`).src = '';
+            document.getElementById(`logo${num}Preview`).style.display = 'none';
+            document.getElementById(`logo${num}Placeholder`).style.display = 'flex';
+            document.getElementById(`logo${num}Input`).value = '';
+            this.settingsData[`logo${num}_url`] = '';
+        },
+        previewLoginLogo(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const preview = document.getElementById('loginLogoPreview');
+                const placeholder = document.getElementById('loginLogoPlaceholder');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                placeholder.style.display = 'none';
+                this.settingsData.login_logo_url = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        },
+        clearLoginLogo() {
+            document.getElementById('loginLogoPreview').src = '';
+            document.getElementById('loginLogoPreview').style.display = 'none';
+            document.getElementById('loginLogoPlaceholder').style.display = 'flex';
+            document.getElementById('loginLogoInput').value = '';
+            this.settingsData.login_logo_url = '';
+        },
+        async saveSettings() {
+            let wds = [];
+            document.querySelectorAll('.weekend-check:checked').forEach(c => wds.push(c.value));
+            
+            const data = {
+                logo1_url: this.settingsData.logo1_url || '',
+                logo1_name: document.getElementById('logo1Name').value.trim(),
+                logo2_url: this.settingsData.logo2_url || '',
+                logo2_name: document.getElementById('logo2Name').value.trim(),
+                login_logo_url: this.settingsData.login_logo_url || '',
+                primary_color: document.getElementById('primaryColorInput').value,
+                sidebar_color: document.getElementById('sidebarColorInput').value,
+                sidebar_text_color: document.getElementById('sidebarTextColorInput').value,
+                text_color: document.getElementById('textColorInput').value,
+                font_family: document.getElementById('fontFamilyInput').value,
+                weekend_days: wds.join(',')
+            };
+            try {
+                App.showLoading();
+                await API.put('/settings', data);
+                App.showSuccess('تم حفظ الإعدادات بنجاح! سيتم تطبيقها الآن.');
+                
+                // Update sidebar immediately
+                if (App.loadSidebarLogos) App.loadSidebarLogos();
+                // Apply new advanced theme immediately
+                if (App.applyAdvancedTheme) App.applyAdvancedTheme(data);
+                
+            } catch (e) {
+                App.showError(e.message || 'فشل الحفظ');
+            } finally {
+                App.hideLoading();
+            }
+        },
+        previewSidebar() {
+            Swal.fire({
+                title: 'معاينة القائمة الجانبية',
+                html: `<div style="display:flex;align-items:center;justify-content:center;gap:12px;padding:16px;background:#1B5E20;border-radius:12px">
+                    ${document.getElementById('logo1Preview').src ? `<img src="${document.getElementById('logo1Preview').src}" style="width:48px;height:48px;object-fit:contain;border-radius:8px;background:rgba(255,255,255,0.1);padding:4px">` : '<div style="width:48px;height:48px;background:#FFD700;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px">🏢</div>'}
+                    <div style="width:1px;height:48px;background:rgba(255,255,255,0.3)"></div>
+                    ${document.getElementById('logo2Preview').src ? `<img src="${document.getElementById('logo2Preview').src}" style="width:48px;height:48px;object-fit:contain;border-radius:8px;background:rgba(255,255,255,0.1);padding:4px">` : '<div style="width:48px;height:48px;background:rgba(255,255,255,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px">🏛️</div>'}
+                </div>`,
+                icon: 'info',
+                confirmButtonText: 'حسناً'
+            });
+        },
+        async saveEmailSettings() {
+            const data = {
+                smtp_host: document.getElementById('smtpHost').value.trim(),
+                smtp_port: document.getElementById('smtpPort').value,
+                smtp_user: document.getElementById('smtpUser').value.trim(),
+                smtp_pass: document.getElementById('smtpPass').value,
+                smtp_from: document.getElementById('smtpFrom').value.trim(),
+                smtp_enabled: document.getElementById('smtpEnabled').checked ? 'true' : 'false'
+            };
+            if (!data.smtp_host || !data.smtp_user) {
+                return App.showError('يرجى إدخال مزود البريد واسم المستخدم على الأقل.');
+            }
+            try {
+                App.showLoading();
+                const res = await API.put('/settings/email', data);
+                document.getElementById('smtpPass').value = '';
+                App.showSuccess('تم حفظ إعدادات البريد الإلكتروني بنجاح! ✅');
+            } catch (e) {
+                App.showError(e.message || 'فشل حفظ إعدادات البريد');
+            } finally {
+                App.hideLoading();
+            }
+        },
+        async testEmail() {
+            try {
+                App.showLoading();
+                const res = await API.post('/settings/test-email', {});
+                App.showSuccess(res.message || 'تم إرسال البريد التجريبي بنجاح! ✅');
+            } catch (e) {
+                App.showError(e.message || 'فشل إرسال البريد التجريبي. تأكد من إعدادات SMTP.');
+            } finally {
+                App.hideLoading();
+            }
+        },
+        async saveN8nSettings() {
+            const data = {
+                n8n_webhook_url: document.getElementById('n8nWebhookUrl').value.trim(),
+                n8n_enabled: document.getElementById('n8nEnabled').checked ? 'true' : 'false'
+            };
+            if (data.n8n_enabled === 'true' && !data.n8n_webhook_url) {
+                return App.showError('يجب إدخال رابط Webhook عند تفعيل الخدمة.');
+            }
+            try {
+                App.showLoading();
+                const res = await API.put('/settings/n8n', data);
+                App.showSuccess('تم حفظ إعدادات n8n بنجاح! ✅');
+            } catch (e) {
+                App.showError(e.message || 'فشل حفظ إعدادات n8n');
+            } finally {
+                App.hideLoading();
+            }
+        },
+        async testN8n() {
+            const url = document.getElementById('n8nWebhookUrl').value.trim();
+            if (!url) {
+                return App.showError('يرجى إدخال رابط Webhook أولاً لاختباره.');
+            }
+            try {
+                App.showLoading();
+                const res = await API.post('/settings/test-n8n', {});
+                App.showSuccess(res.message || 'تم إرسال المهمة التجريبية إلى n8n بنجاح! ✅');
+            } catch (e) {
+                App.showError(e.message || 'فشل إرسال الطلب. تأكد من صحة الرابط.');
+            } finally {
+                App.hideLoading();
+            }
+        },
+        async saveSmsSettings() {
+            const data = {
+                sms_provider: document.getElementById('smsProvider').value,
+                twilio_sid: document.getElementById('twilioSid').value.trim(),
+                twilio_token: document.getElementById('twilioToken').value.trim(),
+                twilio_from: document.getElementById('twilioFrom').value.trim(),
+                sms_enabled: document.getElementById('smsEnabled').checked ? 'true' : 'false'
+            };
+            if (data.sms_enabled === 'true' && (!data.twilio_sid || !data.twilio_from)) {
+                return App.showError('يرجى تعبئة جميع بيانات مزود الـ SMS لتفعيله.');
+            }
+            try {
+                App.showLoading();
+                const res = await API.put('/settings/sms', data);
+                document.getElementById('twilioToken').value = '';
+                App.showSuccess('تم حفظ إعدادات SMS بنجاح! ✅');
+            } catch (e) {
+                App.showError(e.message || 'فشل حفظ إعدادات SMS');
+            } finally {
+                App.hideLoading();
+            }
+        },
+        async testSms() {
+            try {
+                App.showLoading();
+                const res = await API.post('/settings/test-sms', {});
+                App.showSuccess(res.message || 'تم إرسال الرسالة التجريبية بنجاح! ✅');
+            } catch (e) {
+                App.showError(e.message || 'فشل إرسال الرسالة التجريبية. تأكد من صحة البيانات.');
+            } finally {
+                App.hideLoading();
+            }
+        }
+    };
+    document.addEventListener('DOMContentLoaded', () => Settings.init());
+    </script>
+</body></html>

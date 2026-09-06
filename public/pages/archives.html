@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+(function(){try{
+var t=localStorage.getItem('theme')||'light';
+document.documentElement.setAttribute('data-theme',t);
+var l=localStorage.getItem('lang')||'ar';
+document.documentElement.setAttribute('dir',l==='ar'?'rtl':'ltr');
+document.documentElement.setAttribute('lang',l);
+var isLogin=window.location.pathname==='/'||window.location.pathname==='/login';
+if(!isLogin&&!localStorage.getItem('token')){document.documentElement.style.display='none';window.location.replace('/');}
+}catch(e){}}());
+</script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Archives — Enterprise TMS</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet"><link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet"><link href="/css/style.css?v=9" rel="stylesheet"></head>
+<body>
+    <aside class="sidebar" id="sidebar"><div id="sidebarLogoArea"><div class="logo-icon"><i class="fas fa-tasks"></i></div><h4>Enterprise TMS</h4><small>Task Management System</small></div><nav class="sidebar-nav"><div class="nav-section">Main Menu</div><a href="/dashboard" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a><a href="/tasks" class="nav-link"><i class="fas fa-tasks"></i> Tasks</a><a href="/technical-issues" class="nav-link"><i class="fas fa-headset"></i> Technical Issues</a><a href="/reports" class="nav-link"><i class="fas fa-chart-bar"></i> Reports</a><a href="/archives" class="nav-link active"><i class="fas fa-archive"></i> Task Archives</a>
+<a href="/issues-archives" class="nav-link"><i class="fas fa-box-open"></i> Issue Archives</a><div class="nav-divider"></div><div class="nav-section admin-only">Administration</div><a href="/users" class="nav-link admin-only"><i class="fas fa-users"></i> Users</a><a href="/departments" class="nav-link"><i class="fas fa-building"></i> Departments</a><a href="/roles" class="nav-link admin-only"><i class="fas fa-user-shield"></i> Roles & Permissions</a><a href="/audit-logs" class="nav-link admin-only"><i class="fas fa-history"></i> Audit Logs</a><a href="/settings" class="nav-link admin-only" id="nav-settings"><i class="fas fa-cog"></i> الإعدادات</a>
+            <div class="nav-divider"></div><a href="/notifications" class="nav-link"><i class="fas fa-bell"></i> Notifications</a><a href="/profile" class="nav-link"><i class="fas fa-user-cog"></i> Profile</a></nav><div class="sidebar-footer">&copy; 2026 نظام ادارة الوقت لشركات والمؤسسات. تم تصميم البرنامج بالكامل بواسطة المهندس عبدالمجيد سعيد.</div></aside>
+    <div class="main-wrapper">
+        <header class="main-header"><div class="header-left"><button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button></div><div class="header-right">
+                <button class="theme-toggle me-2" onclick="Lang.toggleLang()" title="Change Language"><i class="fas fa-language"></i></button><a href="/notifications" class="notification-bell" id="notifBell"><i class="fas fa-bell"></i><span class="badge" id="notifCount" style="display:none">0</span></a><button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button><div class="dropdown"><div class="user-dropdown" data-bs-toggle="dropdown"><div class="user-avatar" id="userAvatar"></div><div class="user-info"><div class="name" id="headerUserName"></div><div class="role" id="headerUserRole"></div></div><i class="fas fa-chevron-down ms-1" style="font-size:10px;color:var(--text-muted)"></i></div><ul class="dropdown-menu dropdown-menu-end"><li><a class="dropdown-item" href="/profile"><i class="fas fa-user-cog me-2"></i>Profile</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item text-danger" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li></ul></div></div></header>
+        <main class="page-content">
+            <div class="page-header"><div><h2>Archives</h2><nav class="breadcrumb"><a href="/dashboard">Home</a> / <span>Archives</span></nav></div></div>
+            <div class="data-card"><div class="card-body-custom">
+                <!-- Filter & Print Bar -->
+                <div class="filter-bar mb-3 d-flex flex-wrap gap-3">
+                    <div class="filter-group">
+                        <label data-i18n="lbl_from_date">من تاريخ</label>
+                        <input type="date" class="form-control" id="aFilterDateFrom">
+                    </div>
+                    <div class="filter-group">
+                        <label data-i18n="lbl_to_date">إلى تاريخ</label>
+                        <input type="date" class="form-control" id="aFilterDateTo">
+                    </div>
+                    <div class="filter-group">
+                        <label data-i18n="lbl_department">القسم</label>
+                        <select class="form-select" id="aFilterDept">
+                            <option value="">All</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label data-i18n="lbl_user">Employee</label>
+                        <select class="form-select" id="aFilterEmployee">
+                            <option value="" data-i18n="txt_auto_34">All</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group" style="margin-top:auto">
+                        <button class="btn btn-primary-custom btn-sm" onclick="Archives.applyFilters()">
+                            <i class="fas fa-search me-1"></i><span data-i18n="txt_auto_39">تصفية</span>
+                        </button>
+                    </div>
+                    
+                    <div class="filter-group ms-auto" style="margin-top:auto">
+                        <div class="d-flex gap-2">
+                            <input type="text" id="gmTitleInput" class="form-control form-control-sm" data-i18n-placeholder="ph_gm_title" placeholder="Job Title" style="width: 140px;">
+                            <input type="text" id="gmNameInput" class="form-control form-control-sm" data-i18n-placeholder="ph_gm_name" placeholder="Manager Name" style="width: 140px;">
+                            <button class="btn btn-secondary btn-sm" onclick="Archives.printArchives()">
+                                <i class="fas fa-print me-1"></i><span data-i18n="btn_print">Print</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Print Area -->
+                <div id="printArea" class="print-only"></div>
+
+                <div class="table-responsive"><table class="table table-custom" id="archivesTable" width="100%"><thead><tr><th>Task #</th><th>Title</th><th>Assigned To</th><th>Department</th><th>Completed</th><th>Archived</th><th>Actions</th></tr></thead><tbody></tbody></table></div></div></div>
+        </main>
+        <footer class="main-footer">&copy; 2026 نظام ادارة الوقت لشركات والمؤسسات. تم تصميم البرنامج بالكامل بواسطة المهندس عبدالمجيد سعيد.</footer>
+    </div>
+    <div class="loading-overlay" id="loadingOverlay"><div class="loading-spinner"></div></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script><script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script><script src="https://code.jquery.com/jquery-3.7.1.min.js"></script><script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script><script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script><script src="/js/api.js"></script><script src="/js/i18n.js"></script>
+    <script src="/js/app.js?v=8"></script><script src="/js/archives.js?v=2"></script>
+</body></html>
